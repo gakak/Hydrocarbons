@@ -23,6 +23,14 @@ double* z; int sizeZ;
 /*GLOBAL variables*/
 
 //-------------------------------------------------------------------------------------------------------------------------
+double* makeGrid(double a0, double deltaA, int colsCount){
+	double* g = new double [colsCount];
+	for(int i = 0; i < colsCount; i++)
+		g[i] = a0 + i*deltaA;
+	return g;
+}
+
+//-------------------------------------------------------------------------------------------------------------------------
 double** init2XArray(int rowsCount, int colsCount){
 	double** a = new double* [rowsCount];
 	for(int i = 0; i < rowsCount; i++)
@@ -177,18 +185,10 @@ int main() {
 	/*parameters*/
 
 	/*grids*/
-	x = new double [sizeX];						// grid for x
-	for(int i = 0; i < sizeX; i++)
-		x[i] = x0 + i*deltaX;
-	y = new double [sizeY];						// grid for y
-	for(int i = 0; i < sizeY; i++)
-		y[i] = y0 + i*deltaY;
-	z = new double [sizeZ];						// grid for z
-	for(int i = 0; i < sizeZ; i++)
-		z[i] = z0 + i*deltaZ;
-	double* t = new double[timeSize];			// grid for time
-	for(int i = 0; i < timeSize; i++)
-		t[i] = t0 + i*deltaT;
+	x = makeGrid(x0, deltaX, sizeX);			// grid for x
+	y = makeGrid(y0, deltaY, sizeY);			// grid for y
+	z = makeGrid(z0, deltaZ, sizeZ);			// grid for z
+	double* t = makeGrid(t0, deltaT, timeSize);	// grid for time
 	/*grids*/
 
 	double g_[3];
