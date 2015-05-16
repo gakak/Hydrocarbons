@@ -62,32 +62,32 @@ double calcS(double deltaT, double F1, double F2, double c1, double c2){
 
 // calculating matrix of F ------------------------------------------------------------------------------------------------
 double** getFullF(double* g_, double** L, double** F){
-	int currentStep;
+	int curStep;
 	for(int r = 0; r < sizeX; r++){
 		for(int w = 0; w < sizeY; w++){
 			//#pragma omp parallel for
 			for(int d = 0; d < sizeZ; d++){
-				currentStep = r*(sizeY*sizeZ)+w*sizeZ+d;
+				curStep = r*(sizeY*sizeZ)+w*sizeZ+d;
 				if(r != 0 && r != sizeX-1)
-					F[currentStep][0] = calcF(L[currentStep+1][0] - L[currentStep-1][0], g_[0]*x[r], x[r-1], x[r+1]);
+					F[curStep][0] = calcF(L[curStep+1][0] - L[curStep-1][0], g_[0]*x[r], x[r-1], x[r+1]);
 				else if(r == 0)
-					F[currentStep][0] = calcF(L[currentStep+1][0] - L[currentStep][0], g_[0]*x[r], x[r], x[r+1]);
+					F[curStep][0] = calcF(L[curStep+1][0] - L[curStep][0], g_[0]*x[r], x[r], x[r+1]);
 				else if(r == sizeX-1)
-					F[currentStep][0] = calcF(L[currentStep][0] - L[currentStep-1][0], g_[0]*x[r], x[r-1], x[r]);
+					F[curStep][0] = calcF(L[curStep][0] - L[curStep-1][0], g_[0]*x[r], x[r-1], x[r]);
 
 				if(w != 0 && w != sizeY-1)
-					F[currentStep][1] = calcF(L[currentStep+1][1] - L[currentStep-1][1], g_[1]*y[w], y[w-1], y[w+1]);
+					F[curStep][1] = calcF(L[curStep+1][1] - L[curStep-1][1], g_[1]*y[w], y[w-1], y[w+1]);
 				else if(w == 0)
-					F[currentStep][1] = calcF(L[currentStep+1][1] - L[currentStep][1], g_[1]*y[w], y[w], y[w+1]);
+					F[curStep][1] = calcF(L[curStep+1][1] - L[curStep][1], g_[1]*y[w], y[w], y[w+1]);
 				else if(w == sizeY-1)
-					F[currentStep][1] = calcF(L[currentStep][1] - L[currentStep-1][1], g_[1]*y[w], y[w-1], y[w]);
+					F[curStep][1] = calcF(L[curStep][1] - L[curStep-1][1], g_[1]*y[w], y[w-1], y[w]);
 
 				if(d != 0 && d != sizeZ-1)
-					F[currentStep][2] = calcF(L[currentStep+1][2] - L[currentStep-1][2], g_[2]*z[d], z[d-1], z[d+1]);
+					F[curStep][2] = calcF(L[curStep+1][2] - L[curStep-1][2], g_[2]*z[d], z[d-1], z[d+1]);
 				else if(d == 0)
-					F[currentStep][2] = calcF(L[currentStep+1][2] - L[currentStep][2], g_[2]*z[d], z[d], z[d+1]);
+					F[curStep][2] = calcF(L[curStep+1][2] - L[curStep][2], g_[2]*z[d], z[d], z[d+1]);
 				else if(d == sizeZ-1)
-					F[currentStep][2] = calcF(L[currentStep][2] - L[currentStep-1][2], g_[2]*z[d], z[d-1], z[d]);
+					F[curStep][2] = calcF(L[curStep][2] - L[curStep-1][2], g_[2]*z[d], z[d-1], z[d]);
 			}
 		}
 	}
@@ -96,32 +96,32 @@ double** getFullF(double* g_, double** L, double** F){
 
 // calculating matrix of S ------------------------------------------------------------------------------------------------
 double** getFullS(double deltaT, double** F, double** S){
-	int currentStep;
+	int curStep; //current step/текущая итерация
 	for(int r = 0; r < sizeX; r++){
 		for(int w = 0; w < sizeY; w++){
 			//#pragma omp parallel for
 			for(int d = 0; d < sizeZ; d++){
-				currentStep = r*(sizeY*sizeZ)+w*sizeZ+d;
+				curStep = r*(sizeY*sizeZ)+w*sizeZ+d;
 				if(r != 0 && r != sizeX-1)
-					S[currentStep][0] += calcS(deltaT, F[currentStep-1][0], F[currentStep+1][0], x[r-1], x[r+1]);
+					S[curStep][0] += calcS(deltaT, F[curStep-1][0], F[curStep+1][0], x[r-1], x[r+1]);
 				else if(r == 0)
-					S[currentStep][0] += calcS(deltaT, F[currentStep][0], F[currentStep+1][0], x[r], x[r+1]);
+					S[curStep][0] += calcS(deltaT, F[curStep][0], F[curStep+1][0], x[r], x[r+1]);
 				else if(r == sizeX - 1)
-					S[currentStep][0] += calcS(deltaT, F[currentStep-1][0], F[currentStep][0], x[r-1], x[r]);
+					S[curStep][0] += calcS(deltaT, F[curStep-1][0], F[curStep][0], x[r-1], x[r]);
 
 				if(w != 0 && w != sizeY-1)
-					S[currentStep][1] += calcS(deltaT, F[currentStep-1][1], F[currentStep+1][1], y[w-1], y[w+1]);
+					S[curStep][1] += calcS(deltaT, F[curStep-1][1], F[curStep+1][1], y[w-1], y[w+1]);
 				else if(w == 0)
-					S[currentStep][1] += calcS(deltaT, F[currentStep][1], F[currentStep+1][1], y[w], y[w+1]);
+					S[curStep][1] += calcS(deltaT, F[curStep][1], F[curStep+1][1], y[w], y[w+1]);
 				else if(w == sizeY - 1)
-					S[currentStep][1] += calcS(deltaT, F[currentStep-1][1], F[currentStep][1], y[w-1], y[w]);
+					S[curStep][1] += calcS(deltaT, F[curStep-1][1], F[curStep][1], y[w-1], y[w]);
 
 				if(d != 0 && d != sizeZ-1)
-					S[currentStep][2] += calcS(deltaT, F[currentStep-1][2], F[currentStep+1][2], z[d-1], z[d+1]);
+					S[curStep][2] += calcS(deltaT, F[curStep-1][2], F[curStep+1][2], z[d-1], z[d+1]);
 				else if(d == 0)
-					S[currentStep][2] += calcS(deltaT, F[currentStep][2], F[currentStep+1][2], z[d], z[d+1]);
+					S[curStep][2] += calcS(deltaT, F[curStep][2], F[curStep+1][2], z[d], z[d+1]);
 				else if(d == sizeZ - 1)
-					S[currentStep][2] += calcS(deltaT, F[currentStep-1][2], F[currentStep][2], z[d-1], z[d]);
+					S[curStep][2] += calcS(deltaT, F[curStep-1][2], F[curStep][2], z[d-1], z[d]);
 			}
 		}
 	}
