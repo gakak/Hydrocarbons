@@ -39,11 +39,11 @@ double** init2XArray(int rowsCount, int colsCount){
 }
 
 //-------------------------------------------------------------------------------------------------------------------------
-double** getRand2XArray(int min, int max, int rowsCount, int colsCount){
+double** getRand2XArray(int min, int max, double** randArr, int rowsCount, int colsCount){
 	double randNum;
-	double** randArr = init2XArray(rowsCount, colsCount);
 	for(int i = 0; i < rowsCount; i++){
 		randNum = min + rand() % max;
+		randNum = 45*98066.5;
 		for(int j = 0; j < colsCount; j++)
 			randArr[i][j] = randNum/sqrt(colsCount);
 	}
@@ -61,7 +61,7 @@ double calcS(double deltaT, double F1, double F2, double c1, double c2){
 }
 
 // calculating matrix of F ------------------------------------------------------------------------------------------------
-double** getFullF(double* g_, double** L, double** F){
+void getFullF(double* g_, double** L, double** F){
 	int curStep;
 	for(int r = 0; r < sizeX; r++){
 		for(int w = 0; w < sizeY; w++){
@@ -76,26 +76,25 @@ double** getFullF(double* g_, double** L, double** F){
 					F[curStep][0] = calcF(L[curStep][0] - L[curStep-1][0], g_[0]*x[r], x[r-1], x[r]);
 
 				if(w != 0 && w != sizeY-1)
-					F[curStep][1] = calcF(L[curStep+1][1] - L[curStep-1][1], g_[1]*y[w], y[w-1], y[w+1]);
+					F[curStep][1] = calcF(L[curStep+1][0] - L[curStep-1][0], g_[1]*y[w], y[w-1], y[w+1]);
 				else if(w == 0)
-					F[curStep][1] = calcF(L[curStep+1][1] - L[curStep][1], g_[1]*y[w], y[w], y[w+1]);
+					F[curStep][1] = calcF(L[curStep+1][0] - L[curStep][0], g_[1]*y[w], y[w], y[w+1]);
 				else if(w == sizeY-1)
-					F[curStep][1] = calcF(L[curStep][1] - L[curStep-1][1], g_[1]*y[w], y[w-1], y[w]);
+					F[curStep][1] = calcF(L[curStep][0] - L[curStep-1][0], g_[1]*y[w], y[w-1], y[w]);
 
 				if(d != 0 && d != sizeZ-1)
-					F[curStep][2] = calcF(L[curStep+1][2] - L[curStep-1][2], g_[2]*z[d], z[d-1], z[d+1]);
+					F[curStep][2] = calcF(L[curStep+1][0] - L[curStep-1][0], g_[2]*z[d], z[d-1], z[d+1]);
 				else if(d == 0)
-					F[curStep][2] = calcF(L[curStep+1][2] - L[curStep][2], g_[2]*z[d], z[d], z[d+1]);
+					F[curStep][2] = calcF(L[curStep+1][0] - L[curStep][0], g_[2]*z[d], z[d], z[d+1]);
 				else if(d == sizeZ-1)
-					F[curStep][2] = calcF(L[curStep][2] - L[curStep-1][2], g_[2]*z[d], z[d-1], z[d]);
+					F[curStep][2] = calcF(L[curStep][0] - L[curStep-1][0], g_[2]*z[d], z[d-1], z[d]);
 			}
 		}
 	}
-	return F;
 }
 
 // calculating matrix of S ------------------------------------------------------------------------------------------------
-double** getFullS(double deltaT, double** F, double** S){
+void getFullS(double deltaT, double** F, double** S){
 	int curStep; //current step/текущая итерация
 	for(int r = 0; r < sizeX; r++){
 		for(int w = 0; w < sizeY; w++){
@@ -125,7 +124,6 @@ double** getFullS(double deltaT, double** F, double** S){
 			}
 		}
 	}
-	return S;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------
@@ -145,7 +143,7 @@ int write3ColArray(string fileName, double** a, int rowsCount){
 int main() {
 
 	/*parameters, given in Si*/
-	double t0 = 0.0, tk = 100.0, deltaT = 0.1;	// start, end time and grid step for time
+	double t0 = 0.0, tk = 150000.0, deltaT = 0.1;	// start, end time and grid step for time
 	double x0 = 1.0, xk = 3.0, deltaX = 0.1;	// start, end X and grid step for X
 	double y0 = 1.0, yk = 3.0, deltaY = 0.1;	// start, end Y and grid step for Y
 	double z0 = 1.0, zk = 3.0, deltaZ = 0.1;	// start, end Z and grid step for Z
@@ -165,7 +163,7 @@ int main() {
 	double fP = 40.55*pow(10, -9); 				// relative permeability/относительная фазовая проницаемость
 	//(в общем случае зависит от координат) [mD = 10^(-9) m²]
 	double muP = 0.052; 						// dynamic viscosity/динамическая вязкость [Pa*sec]
-	double** pP; 								// pressure/давления(зависит от координат и времени в общем случае) [Pa]
+	double** pP = init2XArray(matrixSize, 1); 	// pressure/давления(зависит от координат и времени в общем случае) [Pa]
 	double roP = 850.0; 						// density/плотность [kg/m³]
 	/*petroleum*/
 
@@ -173,13 +171,13 @@ int main() {
 	double fW = 3.75*pow(10, -9); 				// relative permeability/относительная фазовая проницаемость
 	//(в общем случае зависит от координат) [mD = 10^(-9) m²]
 	double muW = 8.94*pow(10, -4); 				// dynamic viscosity/динамическая вязкость [Pa*sec]
-	double** pW; 								// pressure/давления(зависит от координат и времени в общем случае) [Pa]
+	double** pW = init2XArray(matrixSize, 1); 	// pressure/давления(зависит от координат и времени в общем случае) [Pa]
 	double roW = 1000.0; 						// density/плотность [kg/m³]
 	/*water*/
 
 	Psi = fP*fW/(muP*fP + muW*fW); 				// коэффициент в уравнение, описывающем насыщенность одной из фаз
 
-	double** L = init2XArray(matrixSize, 3);	// pressure difference in the phases/разность давления в фазах
+	double** L = init2XArray(matrixSize, 1);	// pressure difference in the phases/разность давления в фазах
 	double** S = init2XArray(matrixSize, 3);	// saturation/насыщенность(зависит от координат и времени)
 	double** F = init2XArray(matrixSize, 3);	// коэффициент для вычисления насыщенности
 	/*parameters*/
@@ -203,7 +201,7 @@ int main() {
 
 
 	double timeStart, runtime;
-	int numThreads = 2;
+	int numThreads = 1;
 	for(int threads = 1; threads < numThreads + 1; threads++){
 		omp_set_num_threads(threads);
 
@@ -211,17 +209,17 @@ int main() {
 		timeStart = omp_get_wtime();
 		for(int tIndx = 0; tIndx < timeSize-1; tIndx++){
 			/*changing the pressure every time step*/
-			pP = getRand2XArray(40*98066.5, 50*98066.5, matrixSize, 3);			// 200m below ground/на глубине 200m
-			pW = getRand2XArray(40*98066.5, 50*98066.5, matrixSize, 3);			// 200m below ground/на глубине 200m
+			getRand2XArray(40*98066.5, 50*98066.5, pP, matrixSize, 1);			// 200m below ground/на глубине 200m
+			getRand2XArray(40*98066.5, 50*98066.5, pW, matrixSize, 1);			// 200m below ground/на глубине 200m
 			for(int i = 0; i < matrixSize; i++){
 				//#pragma omp parallel for
-				for(int j = 0; j < 3; j++)
+				for(int j = 0; j < 1; j++)
 					L[i][j] = pP[i][j] - pW[i][j];
 			}
 			/*changing the pressure every time step*/
 
-			F = getFullF(g_, L, F);
-			S = getFullS(t[tIndx+1] - t[tIndx], F, S);
+			getFullF(g_, L, F);
+			getFullS(t[tIndx+1] - t[tIndx], F, S);
 		}
 		runtime = omp_get_wtime() - timeStart;
 		/* Main calculations */
@@ -235,7 +233,7 @@ int main() {
 		timeFile << fixed << "Время выполнения программы для " << threads << " потока(-ов): " << runtime << " sec\n";
 		timeFile.close();
 
-		if(threads == numThreads-1){
+		if(threads == numThreads){
 			int writeRes = write3ColArray("f4Saturation", F, matrixSize);
 			if (!writeRes)
 				cout << "Can't write to the file 'f4Saturation'!\n";
