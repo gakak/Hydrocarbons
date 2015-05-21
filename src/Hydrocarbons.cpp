@@ -43,7 +43,6 @@ double** getRand2XArray(int min, int max, double** randArr, int rowsCount, int c
 	double randNum;
 	for(int i = 0; i < rowsCount; i++){
 		randNum = min + rand() % max;
-		randNum = 45*98066.5;
 		for(int j = 0; j < colsCount; j++)
 			randArr[i][j] = randNum/sqrt(colsCount);
 	}
