@@ -39,14 +39,13 @@ double** init2XArray(int rowsCount, int colsCount){
 }
 
 //-------------------------------------------------------------------------------------------------------------------------
-double** getRand2XArray(int min, int max, double** randArr, int rowsCount, int colsCount){
+void getRand2XArray(int min, int max, double** randArr, int rowsCount, int colsCount){
 	double randNum;
 	for(int i = 0; i < rowsCount; i++){
 		randNum = min + rand() % max;
 		for(int j = 0; j < colsCount; j++)
 			randArr[i][j] = randNum/sqrt(colsCount);
 	}
-	return randArr;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------
